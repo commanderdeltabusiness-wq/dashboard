@@ -1,14 +1,9 @@
-import { useListBots, useGetDashboardSummary, useCreateBot, getListBotsQueryKey, getGetDashboardSummaryQueryKey } from "@workspace/api-client-react";
+import { useListBots, useGetDashboardSummary, getListBotsQueryKey, getGetDashboardSummaryQueryKey } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { StatusBadge } from "@/components/status-badge";
 import { formatUptime, formatNumber } from "@/lib/utils";
 import { Layout } from "@/components/layout";
-import { Terminal, Activity, CheckCircle2, XCircle, AlertCircle, Plus } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Terminal, Activity, CheckCircle2, AlertCircle } from "lucide-react";
 
 function SummaryCards() {
   const { data: summary, isLoading, isError } = useGetDashboardSummary({
@@ -64,60 +59,6 @@ function SummaryCards() {
   );
 }
 
-function CreateBotDialog() {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const queryClient = useQueryClient();
-  const createBot = useCreateBot();
-
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-
-    createBot.mutate({ data: { name } }, {
-      onSuccess: () => {
-        setOpen(false);
-        setName("");
-        queryClient.invalidateQueries({ queryKey: getListBotsQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
-      }
-    });
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
-          <Plus className="w-4 h-4 mr-2" />
-          REGISTER BOT
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="bg-card border-border sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">Register New Bot</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleCreate} className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">BOT IDENTIFIER</label>
-            <Input 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. pr-reviewer-bot"
-              className="bg-background border-border text-foreground font-mono"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>CANCEL</Button>
-            <Button type="submit" disabled={createBot.isPending || !name.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              {createBot.isPending ? "INITIALIZING..." : "REGISTER"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 export default function Dashboard() {
   const { data: bots, isLoading, isError } = useListBots({
     query: {
@@ -133,7 +74,6 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase">System Overview</h1>
           <p className="text-muted-foreground mt-1">Real-time metrics and operational status</p>
         </div>
-        <CreateBotDialog />
       </div>
 
       <SummaryCards />
@@ -158,16 +98,15 @@ export default function Dashboard() {
         <div className="bg-card border border-border border-dashed rounded-lg p-12 text-center">
           <Terminal className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">No active instances</h3>
-          <p className="text-muted-foreground">Register a bot to begin monitoring.</p>
+          <p className="text-muted-foreground">No bots registered yet.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {bots?.map(bot => (
             <Link key={bot.id} href={`/bots/${bot.id}`} className="group block">
               <div className="bg-card border border-border rounded-lg p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(32,178,170,0.15)] h-full flex flex-col relative overflow-hidden">
-                {/* Scanline effect on hover */}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent translate-y-[-100%] group-hover:animate-[scan_2s_linear_infinite]" />
-                
+
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-foreground font-mono group-hover:text-primary transition-colors">
