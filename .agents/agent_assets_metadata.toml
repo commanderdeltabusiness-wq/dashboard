@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "gve8VfAiBwTIzOYq-xyNi"
+uri = "file://bot-integration-guide.md"
+type = "text"
+title = "Bot Integration Guide"

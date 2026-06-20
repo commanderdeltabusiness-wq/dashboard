@@ -21,6 +21,7 @@ import type {
 
 import type {
   Bot,
+  BotApiKeyInfo,
   BotEvent,
   BotInput,
   BotUpdate,
@@ -515,7 +516,7 @@ export const pingBot = async (id: number,
 
 
 
-export const getPingBotMutationOptions = <TError = ErrorType<unknown>,
+export const getPingBotMutationOptions = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pingBot>>, TError,{id: number;data: BodyType<PingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof pingBot>>, TError,{id: number;data: BodyType<PingInput>}, TContext> => {
 
@@ -544,12 +545,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PingBotMutationResult = NonNullable<Awaited<ReturnType<typeof pingBot>>>
     export type PingBotMutationBody = BodyType<PingInput>
-    export type PingBotMutationError = ErrorType<unknown>
+    export type PingBotMutationError = ErrorType<ErrorResponse>
 
     /**
  * @summary Record a bot heartbeat / ping
  */
-export const usePingBot = <TError = ErrorType<unknown>,
+export const usePingBot = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pingBot>>, TError,{id: number;data: BodyType<PingInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof pingBot>>,
@@ -559,6 +560,83 @@ export const usePingBot = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getPingBotMutationOptions(options));
     }
+
+export const getGetBotApiKeyUrl = (id: number,) => {
+
+
+
+
+  return `/api/bots/${id}/key`
+}
+
+/**
+ * @summary Get the API key for a bot (dashboard use only)
+ */
+export const getBotApiKey = async (id: number, options?: RequestInit): Promise<BotApiKeyInfo> => {
+
+  return customFetch<BotApiKeyInfo>(getGetBotApiKeyUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBotApiKeyQueryKey = (id: number,) => {
+    return [
+    `/api/bots/${id}/key`
+    ] as const;
+    }
+
+
+export const getGetBotApiKeyQueryOptions = <TData = Awaited<ReturnType<typeof getBotApiKey>>, TError = ErrorType<ErrorResponse>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBotApiKey>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBotApiKeyQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBotApiKey>>> = ({ signal }) => getBotApiKey(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBotApiKey>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBotApiKeyQueryResult = NonNullable<Awaited<ReturnType<typeof getBotApiKey>>>
+export type GetBotApiKeyQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the API key for a bot (dashboard use only)
+ */
+
+export function useGetBotApiKey<TData = Awaited<ReturnType<typeof getBotApiKey>>, TError = ErrorType<ErrorResponse>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBotApiKey>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBotApiKeyQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getListBotEventsUrl = (id: number,) => {
 

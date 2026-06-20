@@ -146,6 +146,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Bot"
+        "401":
+          description: Unauthorized - invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bots/{id}/key:
+    get:
+      operationId: getBotApiKey
+      tags: [bots]
+      summary: Get the API key for a bot (dashboard use only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: API key info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotApiKeyInfo"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /bots/{id}/events:
     get:
@@ -214,6 +245,17 @@ components:
           type: integer
         lastSeenAt:
           type: ["string", "null"]
+        createdAt:
+          type: string
+
+    BotApiKeyInfo:
+      type: object
+      required: [botId, apiKey, createdAt]
+      properties:
+        botId:
+          type: integer
+        apiKey:
+          type: string
         createdAt:
           type: string
 

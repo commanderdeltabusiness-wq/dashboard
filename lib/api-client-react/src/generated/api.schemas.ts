@@ -34,6 +34,12 @@ export interface Bot {
   createdAt: string;
 }
 
+export interface BotApiKeyInfo {
+  botId: number;
+  apiKey: string;
+  createdAt: string;
+}
+
 export interface BotInput {
   /** @minLength 1 */
   name: string;

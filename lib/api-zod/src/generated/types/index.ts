@@ -7,6 +7,7 @@
  */
 
 export * from './bot';
+export * from './botApiKeyInfo';
 export * from './botEvent';
 export * from './botEventType';
 export * from './botInput';

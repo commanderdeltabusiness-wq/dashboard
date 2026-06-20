@@ -136,6 +136,20 @@ export const PingBotResponse = zod.object({
 
 
 /**
+ * @summary Get the API key for a bot (dashboard use only)
+ */
+export const GetBotApiKeyParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetBotApiKeyResponse = zod.object({
+  "botId": zod.number(),
+  "apiKey": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary Get recent events for a bot
  */
 export const ListBotEventsParams = zod.object({

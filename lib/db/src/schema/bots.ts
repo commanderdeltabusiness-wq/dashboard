@@ -23,10 +23,19 @@ export const botEventsTable = pgTable("bot_events", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const botApiKeysTable = pgTable("bot_api_keys", {
+  id: serial("id").primaryKey(),
+  botId: integer("bot_id").notNull().unique().references(() => botsTable.id, { onDelete: "cascade" }),
+  apiKey: text("api_key").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertBotSchema = createInsertSchema(botsTable).omit({ id: true, createdAt: true });
 export const insertBotEventSchema = createInsertSchema(botEventsTable).omit({ id: true, createdAt: true });
+export const insertBotApiKeySchema = createInsertSchema(botApiKeysTable).omit({ id: true, createdAt: true });
 
 export type InsertBot = z.infer<typeof insertBotSchema>;
 export type Bot = typeof botsTable.$inferSelect;
 export type InsertBotEvent = z.infer<typeof insertBotEventSchema>;
 export type BotEvent = typeof botEventsTable.$inferSelect;
+export type BotApiKey = typeof botApiKeysTable.$inferSelect;

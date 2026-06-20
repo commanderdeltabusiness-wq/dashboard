@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { botsTable, botEventsTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
+import { botsTable, botEventsTable, botApiKeysTable } from "@workspace/db";
+import { eq, desc, and } from "drizzle-orm";
 import {
   CreateBotBody,
   UpdateBotBody,
@@ -12,17 +12,17 @@ import {
   PingBotParams,
   ListBotEventsParams,
 } from "@workspace/api-zod";
+import { requireBotApiKey } from "../middleware/api-key-auth";
 
 const router = Router();
 
 router.get("/bots", async (req, res) => {
   const bots = await db.select().from(botsTable).orderBy(botsTable.createdAt);
-  const result = bots.map((b) => ({
+  res.json(bots.map((b) => ({
     ...b,
     lastSeenAt: b.lastSeenAt ? b.lastSeenAt.toISOString() : null,
     createdAt: b.createdAt.toISOString(),
-  }));
-  res.json(result);
+  })));
 });
 
 router.post("/bots", async (req, res) => {
@@ -59,6 +59,27 @@ router.get("/bots/:id", async (req, res) => {
     ...bot,
     lastSeenAt: bot.lastSeenAt ? bot.lastSeenAt.toISOString() : null,
     createdAt: bot.createdAt.toISOString(),
+  });
+});
+
+router.get("/bots/:id/key", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const [row] = await db
+    .select()
+    .from(botApiKeysTable)
+    .where(eq(botApiKeysTable.botId, id));
+  if (!row) {
+    res.status(404).json({ error: "No API key found for this bot" });
+    return;
+  }
+  res.json({
+    botId: row.botId,
+    apiKey: row.apiKey,
+    createdAt: row.createdAt.toISOString(),
   });
 });
 
@@ -105,7 +126,7 @@ router.delete("/bots/:id", async (req, res) => {
   res.status(204).send();
 });
 
-router.post("/bots/:id/ping", async (req, res) => {
+router.post("/bots/:id/ping", requireBotApiKey, async (req, res) => {
   const paramsParsed = PingBotParams.safeParse({ id: Number(req.params.id) });
   if (!paramsParsed.success) {
     res.status(400).json({ error: "Invalid id" });
@@ -136,6 +157,8 @@ router.post("/bots/:id/ping", async (req, res) => {
   }
   if (status === "error") {
     await db.insert(botEventsTable).values({ botId: bot.id, type: "error", message: "Bot reported error status." });
+  } else if (status === "online") {
+    await db.insert(botEventsTable).values({ botId: bot.id, type: "online", message: "Heartbeat received — bot is online." });
   }
   res.json({
     ...bot,
@@ -156,12 +179,10 @@ router.get("/bots/:id/events", async (req, res) => {
     .where(eq(botEventsTable.botId, parsed.data.id))
     .orderBy(desc(botEventsTable.createdAt))
     .limit(50);
-  res.json(
-    events.map((e) => ({
-      ...e,
-      createdAt: e.createdAt.toISOString(),
-    }))
-  );
+  res.json(events.map((e) => ({
+    ...e,
+    createdAt: e.createdAt.toISOString(),
+  })));
 });
 
 export default router;
