@@ -6,3 +6,9 @@ id = "gve8VfAiBwTIzOYq-xyNi"
 uri = "file://bot-integration-guide.md"
 type = "text"
 title = "Bot Integration Guide"
+
+[[outputs]]
+id = "yhu30aVk_GF3WsuemRl9o"
+uri = "file://bot-dashboard-files.tar.gz"
+type = "unspecified"
+title = "Bot Dashboard — Source Files"
