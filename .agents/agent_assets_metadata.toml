@@ -6,9 +6,25 @@ id = "gve8VfAiBwTIzOYq-xyNi"
 uri = "file://bot-integration-guide.md"
 type = "text"
 title = "Bot Integration Guide"
+logical_id = "cd11e185-653b-4a23-8ae7-fcef4745c82d"
 
 [[outputs]]
 id = "yhu30aVk_GF3WsuemRl9o"
 uri = "file://bot-dashboard-files.tar.gz"
 type = "unspecified"
 title = "Bot Dashboard — Source Files"
+logical_id = "233d7e73-04e3-4428-8083-9b66f4a765a8"
+
+[[outputs]]
+id = "k6B0KEYX96SYEvmfuuCMS"
+uri = "file://bot-dashboard-clean-source.tar.gz"
+type = "unspecified"
+title = "Bot Dashboard Clean Source"
+description = "Clean source code for the bot dashboard website and API. Excludes node_modules, caches, build output, database credentials, and live API keys."
+logical_id = "990ce013-4b9e-4acd-8640-544617011d93"
+content_hash = "sha256:f16d3ce76803feec720741cba35a80e22a38646400843e857e3fa26af4a9bdb6"
+size = 163522
+mtime_ms = 1788968032901
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:79b5b707-5b18-49e5-8c3c-686f15218b33/990ce013-4b9e-4acd-8640-544617011d93/c33e9242-aed2-47ed-ac63-683f66d81019"
+storage_version_token = "1788968039434439"
+content_type = "application/octet-stream"
